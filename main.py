@@ -48,6 +48,9 @@ def create_glitch(bytes_data: bytes, seed: int):
     chunks = []
     num_chunks = random.randint(5, 20)
 
+    max_chunk_len = 300
+    min_chunk_len = 20
+
     # safe_start = TIFF_HEADER_LEN
     # safe_end = len(data) - TIFF_FOOTER_LEN - 1
     file_len = len(data)
@@ -71,15 +74,17 @@ def create_glitch(bytes_data: bytes, seed: int):
         glitch_zone_start = int(file_len * GLITCH_ZONE_START)
         glitch_zone_end = int(file_len * GLITCH_ZONE_END)
 
-        s = random.randint(glitch_zone_start, glitch_zone_end - 300)
-        e = s + random.randint(20, 300)
-        # e = min(e, safe_end)
-        e = min(e, len(data) - 1)
+
+        # Make sure there's enough room to delete safely
+        if glitch_zone_end - glitch_zone_start < max_chunk_len:
+            break
+
+        s = random.randint(glitch_zone_start, glitch_zone_end - max_chunk_len)
+        chunk_len = random.randint(min_chunk_len, max_chunk_len)
+        e = min(s + chunk_len, len(data) - 1)
 
         chunks.append((s, e))
         del data[s:e]
-        # safe_end = len(data) - TIFF_FOOTER_LEN - 1
-        # safe_end = len(data) - 1  # update after deletion
 
     return data, chunks
 
