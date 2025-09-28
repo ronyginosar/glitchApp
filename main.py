@@ -2,12 +2,13 @@ import os
 import random
 from PIL import Image, ImageFile
 from pathlib import Path
+from io import BytesIO
 
 # ---- Config ----
-input_image_path = Path('sampleImages/RachelRuysch-StillLifewithFlowers-1716.jpg')  # TODO run param <-- change this to your input image
-output_folder = Path('outputs')
-output_folder.mkdir(exist_ok=True)
-number_of_variants = 5  # Number of glitched variants to create
+# input_image_path = Path('sampleImages/RachelRuysch-StillLifewithFlowers-1716.jpg')  # TODO run param <-- change this to your input image
+# output_folder = Path('outputs')
+# output_folder.mkdir(exist_ok=True)
+# number_of_variants = 5  # Number of glitched variants to create
 
 ImageFile.LOAD_TRUNCATED_IMAGES = True  # allow truncated images to load
 
@@ -24,22 +25,23 @@ PERCENT_FOOTER_PROTECT = 0.02   # skip last 2% of file (footer or tags)
 GLITCH_ZONE_START = 0.30  # start deleting after 30% of file
 GLITCH_ZONE_END = 0.70    # stop deleting after 70%
 
-
+DEFAULT_MIN_CHUNK = 20
+DEFAULT_MAX_CHUNK = 300
 
 # ---- Load original image, get basename ----
-orig_name = input_image_path.stem
-dest_folder = output_folder / orig_name
-dest_folder.mkdir(exist_ok=True)
-
-original_tiff = dest_folder / f"{orig_name}_original.tiff"
-Image.open(input_image_path).save(original_tiff, format='TIFF')
-
-with open(original_tiff, 'rb') as f:
-    original_bytes = f.read()
-
-# ---- Determine next index (continue numbering) ----
-existing = list(dest_folder.glob(f"glitch_*_metadata.txt"))
-start_index = len(existing) + 1
+# orig_name = input_image_path.stem
+# dest_folder = output_folder / orig_name
+# dest_folder.mkdir(exist_ok=True)
+# 
+# original_tiff = dest_folder / f"{orig_name}_original.tiff"
+# Image.open(input_image_path).save(original_tiff, format='TIFF')
+# 
+# with open(original_tiff, 'rb') as f:
+    # original_bytes = f.read()
+# 
+# # ---- Determine next index (continue numbering) ----
+# existing = list(dest_folder.glob(f"glitch_*_metadata.txt"))
+# start_index = len(existing) + 1
 
 # ---- Glitch function avoiding header/footer ----
 def create_glitch(bytes_data: bytes, seed: int):
@@ -88,40 +90,104 @@ def create_glitch(bytes_data: bytes, seed: int):
 
     return data, chunks
 
-if __name__ == "__main__":
-    # image processing loop
+# ----- same logic, input option -----
+def create_glitch(bytes_data: bytes, seed: int = 0, num_chunks: int = 10, min_chunk=DEFAULT_MIN_CHUNK, max_chunk=DEFAULT_MAX_CHUNK):
+    random.seed(seed)
+    data = bytearray(bytes_data)
+    chunks = []
 
-    # ---- Generate glitched versions ----
-    for i in range(start_index, start_index + number_of_variants):
-        seed = i
-        tiff_path = dest_folder / f"glitch_{i}.tiff"
-        png_path = dest_folder / f"glitch_{i}.png"
-        meta_path = dest_folder / f"glitch_{i}_metadata.txt"
+    for _ in range(num_chunks):
+        file_len = len(data)
+        glitch_zone_start = int(file_len * GLITCH_ZONE_START)
+        glitch_zone_end = int(file_len * GLITCH_ZONE_END)
 
-        glitch_bytes, removed = create_glitch(original_bytes, seed)
+        if glitch_zone_end - glitch_zone_start < max_chunk:
+            break
 
-        with open(tiff_path, 'wb') as f:
-            f.write(glitch_bytes)
+        s = random.randint(glitch_zone_start, glitch_zone_end - max_chunk)
+        chunk_len = random.randint(min_chunk, max_chunk)
+        e = min(s + chunk_len, file_len - 1)
 
+        chunks.append((s, e))
+        del data[s:e]
+
+    return data, chunks
+
+# ---- helper ------
+def to_png_bytes(tiff_bytes):
+    """
+    Tries to convert TIFF bytes to PNG bytes.
+    Returns PNG bytes, or raises an error.
+    """
+    # try:
+    #     im = Image.open(BytesIO(tiff_bytes))
+    #     out = BytesIO()
+    #     im.save(out, format='PNG')
+    #     return out.getvalue()
+    # except Exception as e:
+    #     return None
+    with BytesIO(tiff_bytes) as tiff_io:
         try:
-            im = Image.open(tiff_path)
-            im.save(png_path, format='PNG')
-            im.close()
-            meta_info = [
-                f"Original filename: {input_image_path.name}",
-                f"Seed: {seed}",
-                f"Chunks removed: {len(removed)}"
-            ] + [f"Chunk {idx+1}: start={s}, end={e}, length={e-s}" for idx, (s, e) in enumerate(removed)]
+            with Image.open(tiff_io) as im:
+                with BytesIO() as out_png:
+                    im.save(out_png, format='PNG')
+                    return out_png.getvalue()
         except Exception as e:
-            meta_info = [
-                f"Original filename: {input_image_path.name}",
-                f"Seed: {seed}",
-                f"Chunks removed: {len(removed)}",
-                f"Error opening TIFF or generating PNG: {e}"
-            ]
+            raise RuntimeError(f"Failed to convert to PNG: {e}")
 
-        with open(meta_path, 'w') as f:
-            f.write("\n".join(meta_info))
+def build_metadata(original_filename: str, seed: int, chunks, error: str = None) -> str:
+    """
+    Builds the metadata string to write to file.
+    """
+    lines = [
+        f"Original filename: {original_filename}",
+        f"Seed: {seed}",
+        f"Chunks removed: {len(chunks)}"
+    ]
 
-    print("Done! Glitched variants in:", dest_folder)
+    for idx, (s, e) in enumerate(chunks):
+        lines.append(f"Chunk {idx+1}: start={s}, end={e}, length={e-s}")
+
+    if error:
+        lines.append(f"Error opening TIFF or generating PNG: {error}")
+
+    return "\n".join(lines)
+
+# moved to glitch_main.py
+# if __name__ == "__main__":
+#     # image processing loop
+
+#     # ---- Generate glitched versions ----
+#     for i in range(start_index, start_index + number_of_variants):
+#         seed = i
+#         tiff_path = dest_folder / f"glitch_{i}.tiff"
+#         png_path = dest_folder / f"glitch_{i}.png"
+#         meta_path = dest_folder / f"glitch_{i}_metadata.txt"
+
+#         glitch_bytes, removed = create_glitch(original_bytes, seed)
+
+#         with open(tiff_path, 'wb') as f:
+#             f.write(glitch_bytes)
+
+#         try:
+#             im = Image.open(tiff_path)
+#             im.save(png_path, format='PNG')
+#             im.close()
+#             meta_info = [
+#                 f"Original filename: {input_image_path.name}",
+#                 f"Seed: {seed}",
+#                 f"Chunks removed: {len(removed)}"
+#             ] + [f"Chunk {idx+1}: start={s}, end={e}, length={e-s}" for idx, (s, e) in enumerate(removed)]
+#         except Exception as e:
+#             meta_info = [
+#                 f"Original filename: {input_image_path.name}",
+#                 f"Seed: {seed}",
+#                 f"Chunks removed: {len(removed)}",
+#                 f"Error opening TIFF or generating PNG: {e}"
+#             ]
+
+#         with open(meta_path, 'w') as f:
+#             f.write("\n".join(meta_info))
+
+#     print("Done! Glitched variants in:", dest_folder)
 
