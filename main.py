@@ -4,7 +4,7 @@ from PIL import Image, ImageFile
 from pathlib import Path
 
 # ---- Config ----
-input_image_path = Path('sampleImages/RachelRuysch-StillLifewithFlowers-1716.jpg')  # <-- change this to your input image
+input_image_path = Path('sampleImages/RachelRuysch-StillLifewithFlowers-1716.jpg')  # TODO run param <-- change this to your input image
 output_folder = Path('outputs')
 output_folder.mkdir(exist_ok=True)
 number_of_variants = 5  # Number of glitched variants to create
