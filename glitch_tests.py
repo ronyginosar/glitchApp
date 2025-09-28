@@ -3,7 +3,7 @@ from PIL import Image
 from main import create_glitch  # ← Import from your main file
 
 # --- Config ---
-input_image_path = Path("sampleImages/EBM portraits-1.jpg")
+input_image_path = Path("sampleImages/RachelRuysch-StillLifewithFlowers-1716.jpg")
 original_tiff_path = Path("test_original.tiff")
 output_folder = Path("seed_tests")
 output_folder.mkdir(exist_ok=True)

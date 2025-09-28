@@ -7,6 +7,10 @@ from main import create_glitch, to_png_bytes, build_metadata
 ImageFile.LOAD_TRUNCATED_IMAGES = True
 
 def handle_file_upload(input_path: Path, number_of_variants: int = 5):
+    """
+    Glitch the uploaded file and return results as a list of dicts.
+    Each dict contains: {'tiff_bytes', 'png_bytes', 'metadata', 'filename_base'}
+    """
     output_folder = Path("outputs") / input_path.stem
     output_folder.mkdir(parents=True, exist_ok=True)
 
@@ -54,3 +58,37 @@ if __name__ == "__main__":
     image_path = Path(sys.argv[1])
     variants = int(sys.argv[2]) if len(sys.argv) > 2 else 5
     handle_file_upload(image_path, variants)
+
+
+
+    # TODO make test mode:# CLI Test mode, inside tests.py
+    # from PIL import Image
+    # import os
+
+
+    # test_image_path = Path("sampleImages/RachelRuysch-StillLifewithFlowers-1716.jpg")
+    # output_dir = Path("outputs") / test_image_path.stem
+    # output_dir.mkdir(parents=True, exist_ok=True)
+
+
+    # input_bytes = test_image_path.read_bytes()
+    # results = handle_file_upload(input_bytes, test_image_path.name, num_variants=5)
+
+
+    # for r in results:
+    # base = output_dir / r["filename_base"]
+
+
+    # with open(base.with_suffix(".tiff"), "wb") as f:
+    # f.write(r["tiff_bytes"])
+
+
+    # with open(base.with_suffix(".png"), "wb") as f:
+    # f.write(r["png_bytes"])
+
+
+    # with open(base.with_name(base.name + "_metadata.txt"), "w") as f:
+    # f.write(r["metadata"])
+
+
+    # print("✅ CLI Glitching Complete.")
