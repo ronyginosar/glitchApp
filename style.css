@@ -94,13 +94,24 @@ button:hover {
   background: #00d4ff;
 }
 
-.gallery {
+/* todo */
+/* .gallery {
   width: 65%;
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
   gap: 1rem;
   padding: 2rem;
   overflow-y: scroll;
+} */
+#gallery {
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
+  margin-top:10px;
+  /* background:#f9f9f9; */
+  padding:10px;
+  border-radius:8px;
+  min-height:100px;
 }
 
 .preview {

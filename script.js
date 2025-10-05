@@ -34,7 +34,7 @@ globals()["results"] = results
   const proxyList = pyResults.toJs({ create_proxies: true });
   const results = proxyList.map(r => Object.fromEntries(r.entries()));
 
-  console.log("✅ Glitch results:", results);
+  // console.log("✅ Glitch results:", results);
   return results;
 }
 
@@ -66,10 +66,15 @@ window.addEventListener("DOMContentLoaded", async () => {
       );
       console.log("✅ Glitch results:", results);
     renderFileTree();  // refresh FS explorer
+    // determine output folder from filename
+    const folderPath = `outputs/${uploadedFile.name.split(".")[0]}`;
+    showGallery(folderPath);
   });
 
   await initPyodide();
   renderFileTree();
+
+
 });
 
 function renderFileTree(path = ".", container = document.getElementById("fs-viewer")) {
@@ -125,6 +130,42 @@ function renderFileTree(path = ".", container = document.getElementById("fs-view
     container.innerHTML = `<span style="color:red">Error reading ${path}: ${err}</span>`;
   }
 }
+
+function showGallery(folderPath) {
+  const gallery = document.getElementById("gallery");
+  gallery.innerHTML = "⏳ Loading PNGs…";
+
+  try {
+    const files = pyodide.FS.readdir(folderPath).filter(f => f.endsWith(".png"));
+    gallery.innerHTML = "";
+
+    files.forEach(name => {
+      const fullPath = `${folderPath}/${name}`;
+      const bytes = pyodide.FS.readFile(fullPath);
+      const blob = new Blob([bytes], { type: "image/png" });
+      const url = URL.createObjectURL(blob);
+
+      const img = document.createElement("img");
+      img.src = url;
+      img.style.width = "180px";
+      img.style.height = "auto";
+      img.style.borderRadius = "6px";
+      img.style.boxShadow = "0 1px 4px rgba(0,0,0,0.15)";
+      img.title = name;
+
+      gallery.appendChild(img);
+    });
+
+    if (files.length === 0) {
+      gallery.innerHTML = "(no PNGs found)";
+    }
+
+  } catch (err) {
+    console.error("⚠️ Gallery load error:", err);
+    gallery.innerHTML = `<span style="color:red">${err}</span>`;
+  }
+}
+
 
 // let pyodide = null;
 
