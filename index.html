@@ -4,16 +4,20 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>TIFF Glitcher</title>
-  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
-
+  <!-- Material Symbols (Outlined) -->
+  <link
+    href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined"
+    rel="stylesheet"
+  />
 </head>
 <body>
   <div class="panel">
     <div>
-      <div class="title">TIFF Image Glitcher</div>
+      <div class="title">Image Glitcher</div>
       <div class="dropzone" id="dropzone">Drag and drop an image here</div>
-      <div class="description">Glitch TIFF images by randomly deleting chunks of binary data. Customize the glitch parameters below and preview + download each variant.</div>
+      <div class="description">Glitch images by randomly deleting chunks of binary data. Customize the glitch parameters below, preview & download each variant.</div>
     </div>
 
     <div class="controls">
@@ -30,12 +34,16 @@
       <div class="toggle"><input type="checkbox" id="biasedMode"> <label for="biasedMode">Biased chunk placement</label></div>
 
       <button id="glitchButton">Glitch Image</button>
-      <button id="exportAll">Download All (.zip)</button>
+      <!-- TODO -->
+      <!-- <button id="exportAll">Download All (.zip)</button> -->
     </div>
   </div>
 
   <div class="gallery" id="gallery"></div>
   <div id="fs-viewer" style="display:none"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+
 
   <!-- <script src="script.js"></script> -->
   <script src="https://cdn.jsdelivr.net/pyodide/v0.25.1/full/pyodide.js"></script>
