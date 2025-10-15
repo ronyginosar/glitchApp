@@ -9,11 +9,12 @@ async function initPyodide() {
   const glitchMainPy = await fetch("glitch_main.py").then(r => r.text());
   pyodide.FS.writeFile("main.py", mainPy);
   pyodide.FS.writeFile("glitch_main.py", glitchMainPy);
-  console.log("✅ Python files written to FS");
+  console.log("✅ Python files written to FS FileSystem");
 
   await pyodide.loadPackage("micropip");
+  console.log("📦 Loaded micropip");
   await pyodide.runPythonAsync("import micropip; await micropip.install('Pillow')");
-  console.log("✅ Pillow installed");
+  console.log("🖼️ Pillow installed");
 }
 
 // --- Run glitching and return plain results ---
@@ -29,6 +30,7 @@ results = handle_file_upload(data, "${filename}", ${seedBase}, ${variantCount})
 globals()["results"] = results
   `;
   await pyodide.runPythonAsync(code);
+  console.log("🐍 Python functions imported");
 
   const pyResults = pyodide.globals.get("results");
   const proxyList = pyResults.toJs({ create_proxies: true });
