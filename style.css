@@ -103,16 +103,16 @@ button:hover {
   padding: 2rem;
   overflow-y: scroll;
 } */
-#gallery {
+/* #gallery {
   display:flex;
   flex-wrap:wrap;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
   gap:10px;
   margin-top:10px;
-  /* background:#f9f9f9; */
   padding:10px;
   border-radius:8px;
   min-height:100px;
-}
+} */
 
 .preview {
   position: relative;
@@ -143,3 +143,94 @@ button:hover {
 .preview:hover .meta {
   opacity: 1;
 }
+
+
+  /* Gallery layout */
+  #gallery {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 10px;
+    padding: 10px;
+    border-radius: 8px;
+    min-height: 100px;
+  }
+  /* Each thumbnail wrapper */
+  .thumb {
+    position: relative;
+    width: 180px;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.15);
+  }
+  .thumb img {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+  /* Hover overlay */
+  .thumb .overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgba(0,0,0,0.6), transparent 60%);
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    opacity: 0;
+    transition: opacity .18s ease;
+    padding: 8px;
+    gap: 8px;
+  }
+  .thumb:hover .overlay { opacity: 1; }
+
+  .overlay .seed {
+    font: 600 13px/1.2 system-ui, sans-serif;
+    letter-spacing: .2px;
+  }
+  /* .overlay .actions {
+    display: flex;
+    gap: 8px;
+  }
+  .overlay .btn {
+    cursor: pointer;
+    background: #ffffffee;
+    color: #111;
+    border: 0;
+    border-radius: 6px;
+    padding: 6px 8px;
+    font: 600 12px/1 system-ui, sans-serif;
+  } */
+
+  .overlay .btn {
+  cursor: pointer;
+  background: #ffffffee;
+  color: #111;
+  border: 0;
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+}
+.overlay .btn:hover {
+  background: #e0e0e0cc;
+}
+.overlay .actions {
+  display: flex;
+  gap: 6px;
+}
+
+
+  .material-symbols-outlined {
+    font-variation-settings:
+      'FILL' 0,
+      'wght' 400,
+      'GRAD' 0,
+      'opsz' 24;
+    font-size: 20px;
+    vertical-align: middle;
+  }

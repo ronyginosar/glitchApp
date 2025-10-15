@@ -68,7 +68,7 @@ window.addEventListener("DOMContentLoaded", async () => {
       );
       console.log("✅ Glitch results:", results);
     renderFileTree();  // refresh FS explorer
-    // determine output folder from filename
+    // determine output folder from filename, use the same folder convention used in Python
     const folderPath = `outputs/${uploadedFile.name.split(".")[0]}`;
     showGallery(folderPath);
   });
@@ -133,35 +133,199 @@ function renderFileTree(path = ".", container = document.getElementById("fs-view
   }
 }
 
+// function showGallery(folderPath) {
+//   const gallery = document.getElementById("gallery");
+//   gallery.innerHTML = "⏳ Loading PNGs…";
+
+//   try {
+//     const files = pyodide.FS.readdir(folderPath).filter(f => f.endsWith(".png"));
+//     gallery.innerHTML = "";
+
+//     files.forEach(name => {
+//       const fullPath = `${folderPath}/${name}`;
+//       const bytes = pyodide.FS.readFile(fullPath);
+//       const blob = new Blob([bytes], { type: "image/png" });
+//       const url = URL.createObjectURL(blob);
+
+//       const img = document.createElement("img");
+//       img.src = url;
+//       img.style.width = "180px";
+//       img.style.height = "auto";
+//       img.style.borderRadius = "6px";
+//       img.style.boxShadow = "0 1px 4px rgba(0,0,0,0.15)";
+//       img.title = name;
+
+//       gallery.appendChild(img);
+//     });
+
+//     if (files.length === 0) {
+//       gallery.innerHTML = "(no PNGs found)";
+//     }
+
+//   } catch (err) {
+//     console.error("⚠️ Gallery load error:", err);
+//     gallery.innerHTML = `<span style="color:red">${err}</span>`;
+//   }
+// }
+
+// function showGallery(folderPath) {
+//   const gallery = document.getElementById("gallery");
+//   gallery.innerHTML = "⏳ Loading PNGs…";
+
+//   try {
+//     // Find all PNGs in the output folder
+//     const files = pyodide.FS
+//       .readdir(folderPath)
+//       .filter(f => f.toLowerCase().endsWith(".png"));
+
+//     gallery.innerHTML = "";
+
+//     files.forEach(pngName => {
+//       const pngPath = `${folderPath}/${pngName}`;
+//       const seed = seedFromFilename(pngName);
+
+//       // Create UI
+//       const card = document.createElement("div");
+//       card.className = "thumb";
+
+//       // Image
+//       const pngBytes = fsRead(pngPath);
+//       const pngURL = URL.createObjectURL(new Blob([pngBytes], { type: "image/png" }));
+//       const img = document.createElement("img");
+//       img.src = pngURL;
+//       img.alt = pngName;
+
+//       // Overlay
+//       const overlay = document.createElement("div");
+//       overlay.className = "overlay";
+
+//       const seedLabel = document.createElement("div");
+//       seedLabel.className = "seed";
+//       seedLabel.textContent = seed !== null ? `Seed ${seed}` : pngName;
+
+//       const actions = document.createElement("div");
+//       actions.className = "actions";
+
+//       const btnPng = document.createElement("button");
+//       btnPng.className = "btn";
+//       btnPng.textContent = "Download PNG";
+//       btnPng.onclick = () => downloadBytes(pngBytes, pngName, "image/png");
+
+//       // Try to link TIFF with the same seed (glitch_<seed>.tiff)
+//       const tiffName = seed !== null ? `glitch_${seed}.tiff` : stemOf(pngName) + ".tiff";
+//       const tiffPath = `${folderPath}/${tiffName}`;
+
+//       const btnTiff = document.createElement("button");
+//       btnTiff.className = "btn";
+//       btnTiff.textContent = "Download TIFF";
+//       btnTiff.onclick = () => {
+//         try {
+//           const tiffBytes = fsRead(tiffPath);
+//           downloadBytes(tiffBytes, tiffName, "image/tiff");
+//         } catch (err) {
+//           console.warn("TIFF not found for", pngName, err);
+//           alert("TIFF not found for this image.");
+//         }
+//       };
+
+//       actions.appendChild(btnPng);
+//       actions.appendChild(btnTiff);
+//       overlay.appendChild(seedLabel);
+//       overlay.appendChild(actions);
+
+//       card.appendChild(img);
+//       card.appendChild(overlay);
+//       gallery.appendChild(card);
+//     });
+
+//     if (files.length === 0) {
+//       gallery.innerHTML = "(no PNGs found)";
+//     }
+//   } catch (err) {
+//     console.error("⚠️ Gallery load error:", err);
+//     gallery.innerHTML = `<span style="color:red">${err}</span>`;
+//   }
+// }
+
 function showGallery(folderPath) {
   const gallery = document.getElementById("gallery");
   gallery.innerHTML = "⏳ Loading PNGs…";
 
   try {
-    const files = pyodide.FS.readdir(folderPath).filter(f => f.endsWith(".png"));
+    const files = pyodide.FS.readdir(folderPath).filter(f => f.toLowerCase().endsWith(".png"));
     gallery.innerHTML = "";
 
-    files.forEach(name => {
-      const fullPath = `${folderPath}/${name}`;
-      const bytes = pyodide.FS.readFile(fullPath);
-      const blob = new Blob([bytes], { type: "image/png" });
-      const url = URL.createObjectURL(blob);
+    files.forEach(pngName => {
+      const pngPath = `${folderPath}/${pngName}`;
+      const seed = seedFromFilename(pngName);
+      const stem = stemOf(pngName);
+
+      const card = document.createElement("div");
+      card.className = "thumb";
+
+      const pngBytes = fsRead(pngPath);
+      const pngBlob = new Blob([pngBytes], { type: "image/png" });
+      const pngURL = URL.createObjectURL(pngBlob);
 
       const img = document.createElement("img");
-      img.src = url;
-      img.style.width = "180px";
-      img.style.height = "auto";
-      img.style.borderRadius = "6px";
-      img.style.boxShadow = "0 1px 4px rgba(0,0,0,0.15)";
-      img.title = name;
+      img.src = pngURL;
+      img.alt = pngName;
 
-      gallery.appendChild(img);
+      const overlay = document.createElement("div");
+      overlay.className = "overlay";
+
+      const seedLabel = document.createElement("div");
+      seedLabel.className = "seed";
+      seedLabel.textContent = seed !== null ? `Seed ${seed}` : pngName;
+
+      const actions = document.createElement("div");
+      actions.className = "actions";
+
+      // --- PNG Download button ---
+      const btnPng = document.createElement("button");
+      btnPng.className = "btn";
+      btnPng.innerHTML = `<span class="material-symbols-outlined">download</span>`;
+      btnPng.title = "Download PNG";
+      btnPng.onclick = () => downloadBytes(pngBytes, pngName, "image/png");
+
+      // --- ZIP Download button ---
+      const btnZip = document.createElement("button");
+      btnZip.className = "btn";
+      btnZip.innerHTML = `<span class="material-symbols-outlined">folder_zip</span>`;
+      btnZip.title = "Download ZIP (PNG + TIFF + meta)";
+      btnZip.onclick = () => {
+        try {
+          const zip = new JSZip();
+          const tiffPath = `${folderPath}/glitch_${seed}.tiff`;
+          const metaPath = `${folderPath}/glitch_${seed}_metadata.txt`;
+
+          zip.file(pngName, pngBytes);
+          try {
+            zip.file(`glitch_${seed}.tiff`, fsRead(tiffPath));
+          } catch { console.warn("TIFF missing for", seed); }
+          try {
+            zip.file(`glitch_${seed}_metadata.txt`, new TextDecoder().decode(fsRead(metaPath)));
+          } catch { console.warn("Meta missing for", seed); }
+
+          zip.generateAsync({ type: "blob" }).then(blob => {
+            downloadBytes(blob, `glitch_${seed}.zip`, "application/zip");
+          });
+        } catch (err) {
+          console.error("ZIP build failed:", err);
+        }
+      };
+
+      actions.appendChild(btnPng);
+      actions.appendChild(btnZip);
+      overlay.appendChild(seedLabel);
+      overlay.appendChild(actions);
+
+      card.appendChild(img);
+      card.appendChild(overlay);
+      gallery.appendChild(card);
     });
 
-    if (files.length === 0) {
-      gallery.innerHTML = "(no PNGs found)";
-    }
-
+    if (files.length === 0) gallery.innerHTML = "(no PNGs found)";
   } catch (err) {
     console.error("⚠️ Gallery load error:", err);
     gallery.innerHTML = `<span style="color:red">${err}</span>`;
@@ -169,88 +333,35 @@ function showGallery(folderPath) {
 }
 
 
-// let pyodide = null;
 
-// // Load Python scripts into Pyodide's virtual filesystem
-// async function loadPythonScripts() {
-//   const mainPy = await fetch("main.py").then(res => res.text());
-//   const glitchMainPy = await fetch("glitch_main.py").then(res => res.text());
+function fsRead(path) {
+  // Returns Uint8Array from Pyodide FS
+  return pyodide.FS.readFile(path);
+}
 
-//   pyodide.FS.writeFile("main.py", mainPy);
-//   pyodide.FS.writeFile("glitch_main.py", glitchMainPy);
+function downloadBytes(bytes, filename, mime) {
+  const blob = new Blob([bytes], { type: mime || "application/octet-stream" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = filename;
+  a.click();
+}
 
-//   console.log("✅ Python files loaded into Pyodide FS");
-// }
+function stemOf(name) {
+  const lastDot = name.lastIndexOf(".");
+  return lastDot >= 0 ? name.slice(0, lastDot) : name;
+}
 
-// // Load Pyodide, install packages, and import Python functions
-// async function loadPyodideAndPackages() {
-//   pyodide = await loadPyodide({
-//     indexURL: "https://cdn.jsdelivr.net/pyodide/v0.25.1/full/",
-//   });
+// From file name like "glitch_1234.png" → 1234
+function seedFromFilename(file) {
+  // supports "glitch_<seed>.png" or "glitch_<seed>_<anything>.png"
+  const m = file.match(/^glitch_(\d+)/);
+  return m ? parseInt(m[1], 10) : null;
+}
 
-//   console.log("✅ Pyodide and Python environment loaded.");
 
-//   await pyodide.loadPackage("micropip");
-//   console.log("📦 Loaded micropip");
 
-//   await pyodide.runPythonAsync(`
-//     import micropip
-//     await micropip.install("Pillow")
-//   `);
-//   console.log("🖼️ Pillow installed");
 
-//   await loadPythonScripts();
-
-//   await pyodide.runPythonAsync(`
-//     from main import create_glitch, to_png_bytes, build_metadata
-//     from glitch_main import handle_file_upload
-//   `);
-//   console.log("🐍 Python functions imported");
-// }
-
-// // ✅ FIXED: Run glitching using a def function (not async def)
-// async function runGlitching(file, filename, variantCount, seed) {
-//   const buffer = new Uint8Array(await file.arrayBuffer());
-//   pyodide.FS.writeFile("input.tiff", buffer);
-
-//   const code = `
-// from glitch_main import handle_file_upload
-// with open("input.tiff", "rb") as f:
-//     data = f.read()
-// results = handle_file_upload(data, "${filename}")
-// globals()["results"] = results
-//   `;
-
-//   await pyodide.runPythonAsync(code);
-//   return pyodide.globals.get("results").toJs();
-// }
-
-// // Display glitched images and UI buttons
-// function displayGlitchedImages(results) {
-//   const gallery = document.getElementById("gallery");
-//   gallery.innerHTML = "";
-
-//   results.forEach((res, i) => {
-//     const preview = document.createElement("div");
-//     preview.className = "preview";
-
-//     const img = document.createElement("img");
-//     img.src = URL.createObjectURL(new Blob([res.png_bytes], { type: "image/png" }));
-
-//     const meta = document.createElement("div");
-//     meta.className = "meta";
-//     meta.textContent = `Seed ${res.seed}`;
-
-//     const dlBtn = document.createElement("button");
-//     dlBtn.textContent = "Download ZIP";
-//     dlBtn.onclick = () => exportAsZip(i, res);
-
-//     preview.appendChild(img);
-//     preview.appendChild(meta);
-//     preview.appendChild(dlBtn);
-//     gallery.appendChild(preview);
-//   });
-// }
 
 // // Export result as ZIP
 // function exportAsZip(index, res) {
@@ -314,5 +425,3 @@ function showGallery(folderPath) {
 //   });
 // });
 
-// // Initial load
-// loadPyodideAndPackages();
