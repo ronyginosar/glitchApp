@@ -61,7 +61,7 @@ if __name__ == "__main__":
     variants = int(sys.argv[2]) if len(sys.argv) > 2 else 5
     handle_file_upload(image_path, variants)
 
-
+# TODO: clean up CLI mode, or move to separate file
 # if __name__ == "__main__":
 #     if len(sys.argv) < 2:
 #         print("Usage: python main.py path/to/image.jpg [num_variants]")
