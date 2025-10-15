@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Minimal Pyodide Glitch Test</title>
+  <script src="https://cdn.jsdelivr.net/pyodide/v0.25.1/full/pyodide.js"></script>
+  <script type="module" src="script.js"></script>
+  <style>
+    body { font-family: system-ui, sans-serif; margin: 2rem; background: #fafafa; }
+    #dropzone {
+      border: 2px dashed #777;
+      padding: 40px;
+      width: 320px;
+      height: 120px;
+      text-align: center;
+      margin-bottom: 1rem;
+    }
+    button { padding: 10px 20px; font-size: 1rem; }
+  </style>
+</head>
+<hr>
+<h3>🗂️ Pyodide File Explorer</h3>
+<div id="fs-viewer" style="
+  border:1px solid #ccc; 
+  padding:10px; 
+  width:400px; 
+  height:250px; 
+  overflow:auto; 
+  font-family: monospace;
+  background:#fff;
+"></div>
+<button id="refreshFS">🔄 Refresh File Tree</button>
+<body>
+  <h2>🧪 Minimal Glitch Test</h2>
+  <p>Drop a TIFF/JPG/PNG file below, then click <b>Glitch!</b></p>
+  <div id="dropzone">Drop file here</div>
+  <button id="glitchButton">Glitch!</button>
+  <pre id="log"></pre>
+</body>
+</html>
