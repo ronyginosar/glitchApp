@@ -1,53 +1,61 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>TIFF Glitcher</title>
-  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css">
-  <!-- Material Symbols (Outlined) -->
-  <link
-    href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined"
-    rel="stylesheet"
-  />
-</head>
-<body>
-  <div class="panel">
-    <div>
-      <div class="title">Image Glitcher</div>
-      <div class="dropzone" id="dropzone">Drag and drop an image here</div>
-      <div class="description">Glitch images by randomly deleting chunks of binary data. Customize the glitch parameters below, preview & download each variant.</div>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Glitcher</title>
+    <!-- Google Font -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="style.css" />
+    <!-- Material Symbols (Outlined) -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <div class="panel">
+      <div>
+        <div class="title">Image Glitcher</div>
+        <div class="dropzone" id="dropzone">Drag and drop an image here</div>
+        <div class="description">
+          Glitch images by randomly deleting chunks of binary data. Customize
+          the glitch parameters below, preview & download each variant.
+        </div>
+      </div>
+
+      <div class="controls">
+        <label for="variantCount">Number of variants</label>
+        <input type="range" id="variantCount" min="1" max="10" value="5" />
+
+        <label for="zoneStart">Glitch zone start (%)</label>
+        <input type="range" id="zoneStart" min="0" max="100" value="30" />
+
+        <label for="zoneEnd">Glitch zone end (%)</label>
+        <input type="range" id="zoneEnd" min="0" max="100" value="70" />
+
+        <div class="toggle">
+          <input type="checkbox" id="randomSeed" checked />
+          <label for="randomSeed">Random seed per variant</label>
+        </div>
+        <div class="toggle">
+          <input type="checkbox" id="biasedMode" />
+          <label for="biasedMode">Biased chunk placement</label>
+        </div>
+
+        <button id="glitchButton">Glitch Image</button>
+        <!-- TODO -->
+        <!-- <button id="exportAll">Download All (.zip)</button> -->
+      </div>
     </div>
 
-    <div class="controls">
-      <label for="variantCount">Number of variants</label>
-      <input type="range" id="variantCount" min="1" max="10" value="5">
-
-      <label for="zoneStart">Glitch zone start (%)</label>
-      <input type="range" id="zoneStart" min="0" max="100" value="30">
-
-      <label for="zoneEnd">Glitch zone end (%)</label>
-      <input type="range" id="zoneEnd" min="0" max="100" value="70">
-
-      <div class="toggle"><input type="checkbox" id="randomSeed" checked> <label for="randomSeed">Random seed per variant</label></div>
-      <div class="toggle"><input type="checkbox" id="biasedMode"> <label for="biasedMode">Biased chunk placement</label></div>
-
-      <button id="glitchButton">Glitch Image</button>
-      <!-- TODO -->
-      <!-- <button id="exportAll">Download All (.zip)</button> -->
-    </div>
-  </div>
-
-  <div class="gallery" id="gallery"></div>
-  <div id="fs-viewer" style="display:none"></div>
-
-  <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
-
-
-  <!-- <script src="script.js"></script> -->
-  <script src="https://cdn.jsdelivr.net/pyodide/v0.25.1/full/pyodide.js"></script>
-  <script type="module" src="script.js"></script>
-
-</body>
+    <div class="gallery" id="gallery"></div>
+    <div id="fs-viewer" style="display: none"></div>
+    <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/pyodide/v0.25.1/full/pyodide.js"></script>
+    <script type="module" src="script.js"></script>
+  </body>
 </html>
