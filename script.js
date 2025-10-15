@@ -1,3 +1,9 @@
+/*
+  Frontend JavaScript to run Pyodide, handle file uploads,
+  call Python glitching functions, and display results. 
+  Also includes a simple FS explorer and gallery view.
+ */
+
 let pyodide = null;
 
 // --- Load Pyodide + Python engine ---
@@ -60,13 +66,13 @@ window.addEventListener("DOMContentLoaded", async () => {
     // const results = await runGlitching(uploadedFile, uploadedFile.name, 5, Math.floor(Math.random() * 9999));
     // log.textContent = JSON.stringify(results, null, 2);
     console.log("⏳ Running glitch…");
-      const results = await runGlitching(
-        uploadedFile,
-        uploadedFile.name,
-        5,
-        Math.floor(Math.random() * 9999)
-      );
-      console.log("✅ Glitch results:", results);
+    const results = await runGlitching(
+      uploadedFile,
+      uploadedFile.name,
+      5,
+      Math.floor(Math.random() * 9999)
+    );
+    console.log("✅ Glitch results:", results);
     renderFileTree();  // refresh FS explorer
     // determine output folder from filename, use the same folder convention used in Python
     const folderPath = `outputs/${uploadedFile.name.split(".")[0]}`;
@@ -119,8 +125,8 @@ function renderFileTree(path = ".", container = document.getElementById("fs-view
         const ext = filePath.split(".").pop();
         const mime =
           ext === "png" ? "image/png" :
-          ext === "tiff" ? "image/tiff" :
-          "application/octet-stream";
+            ext === "tiff" ? "image/tiff" :
+              "application/octet-stream";
         const blob = new Blob([bytes], { type: mime });
         const a = document.createElement("a");
         a.href = URL.createObjectURL(blob);
@@ -217,8 +223,6 @@ function showGallery(folderPath) {
     gallery.innerHTML = `<span style="color:red">${err}</span>`;
   }
 }
-
-
 
 function fsRead(path) {
   // Returns Uint8Array from Pyodide FS

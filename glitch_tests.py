@@ -1,3 +1,6 @@
+# note: not up to date with latest changes
+
+
 from pathlib import Path
 from PIL import Image
 from main import create_glitch  # ← Import from your main file
